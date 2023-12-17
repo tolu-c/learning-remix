@@ -1,17 +1,35 @@
 import type { FunctionComponent } from "react";
 import type { ContactRecord } from "../data";
-import { Form } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
+import { getContact } from "../data";
+import { LoaderFunction, LoaderFunctionArgs, json } from "@remix-run/node";
+import invariant from "tiny-invariant";
+
+export const loader: LoaderFunction = async ({
+  params,
+}: LoaderFunctionArgs) => {
+  invariant(params.contactId, "Missing contactId params");
+
+  const contact = await getContact(params.contactId);
+
+  if (!contact) {
+    throw new Response("Contact does not exist", { status: 404 });
+  }
+
+  return json({ contact });
+};
 
 const Contact = () => {
-  const contact = {
-    first: "Your",
-    last: "Name",
-    avatar:
-      "https://plus.unsplash.com/premium_photo-1673967770669-91b5c2f2d0ce?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2l0dGVufGVufDB8fDB8fHww",
-    x: "webdevtolu",
-    notes: "i am great!",
-    favorite: true,
-  };
+  const { contact } = useLoaderData<typeof loader>();
+  // const contact = {
+  //   first: "Your",
+  //   last: "Name",
+  //   avatar:
+  //     "https://plus.unsplash.com/premium_photo-1673967770669-91b5c2f2d0ce?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2l0dGVufGVufDB8fDB8fHww",
+  //   x: "webdevtolu",
+  //   notes: "i am great!",
+  //   favorite: true,
+  // };
   return (
     <div id="contact">
       <div>
